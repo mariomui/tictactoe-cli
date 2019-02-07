@@ -1,12 +1,11 @@
 const generateBoard = () => {
-  let board = [];
+  var board = [];
   for (var i = 0; i < 3; i++) {
     board.push(Array(3).fill('_'));
   }
   return board;
 }
-
-let board = generateBoard();
+var board = generateBoard();
 
 
 
@@ -39,57 +38,37 @@ function checkDiagonal(board) {
   return isLeftDiag && isRightDiag ? 'GameOver' : 'Continue';
 }
 
-function gameStart(key = null, piece, board) {
-  if (key === '1') {
-    board[0][0] = piece;
-  } else if (key === '2') {
-    board[0][1] = piece;
-  } else if (key === '3') {
-    board[0][2] = piece;
-  } else if (key === '4') {
-    board[1][0] = piece;
-  } else if (key === '5') {
-    board[1][1] = piece
-  } else if (key === '6') {
-    board[1][2] = piece
-  } else if (key === '7') {
-    board[2][0] = piece
-  } else if (key === '8') {
-    board[2][1] = piece
-  } else if (key === '9') {
-    board[2][2] = piece
+function gameStart(key = null, board) {
+  if (key === 0) {
+    board[0][0] = 1;
   }
 
-
-  board.forEach((row) => {
+  board.forEach(row => {
     console.log(row);
   })
-  return board;
 }
-gameStart(null, piece = 'X', board);
 
-const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
-})
-const turn = (whoseTurn) => {
-  whoseTurn = !whoseTurn;
 
-  var piece = '';
-  if (whoseTurn) {
-    piece = 'X';
-  } else {
-    piece = 'O'
-  }
+const turn = () => {
+  const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+
+  gameStart(null, board);
+
   readline.question(`Player 1: Choose Your Position?`, (key) => {
     if (key === 'j') {
+    } else if (key <= 8 || key >= 0) {
       readline.close();
-    } else if (key <= 9 || key >= 1) {
-      board = gameStart(key, piece, board);
-      turn(whoseTurn);
+      board = gameStart(key, board);
+      turn();
+    } else {
+      turn();
     }
 
+    readline.close()
   })
 }
 
-turn(true);
+turn();
