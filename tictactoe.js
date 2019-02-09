@@ -8,35 +8,34 @@ const generateBoard = () => {
 
 let board = generateBoard();
 
-
-
 function checkHorizontal(board) {
+  var flag = false;
   board.forEach(row => {
     var str = row.reduce((accum, item) => accum += item, '');
-    if (str !== 'XXX' || str === 'OOO') {
-      return 'game over'
-    } else {
-      return 'continue'
+    if ('XXXOOO'.indexOf(str) > -1) {
+      flag = true;
     }
   })
+  return flag;
 }
+
 function checkVertical(board) {
   for (var i = 0; i < board.length; i++) {
     var str = '';
     for (var j = 0; j < board.length; j++) {
-      str += board[j][i];
+      str += board[j][i] || '';
     }
-    if (str === 'XXX' || str === 'OOO') {
-      return 'Game Over';
+    if ('XXXOOO'.indexOf(str) > -1) {
+      return true;
     }
   }
-  return 'continue';
+  return false;
 }
 
 function checkDiagonal(board) {
-  var isLeftDiag = 'XXXOOO'.indexOf(board[0][0] + board[1][1] + board[0][1]) > -1;
-  var isRightDiag = 'XXXOOO'.indexOf(board[0][2] + board[1][1] + board[2][1]) > -1;
-  return isLeftDiag && isRightDiag ? 'GameOver' : 'Continue';
+  var isLeftDiag = 'XXXOOO'.indexOf(board[0][0] + board[1][1] + board[2][2] + '') > -1;
+  var isRightDiag = 'XXXOOO'.indexOf(board[2][0] + board[1][1] + board[0][2] + '') > -1;
+  return (isLeftDiag || isRightDiag) ? true : false;
 }
 
 function gameStart(key = null, piece, board) {
@@ -81,15 +80,25 @@ const turn = (whoseTurn) => {
   } else {
     piece = 'O'
   }
-  readline.question(`Player 1: Choose Your Position?`, (key) => {
-    if (key === 'j') {
-      readline.close();
-    } else if (key <= 9 || key >= 1) {
-      board = gameStart(key, piece, board);
-      turn(whoseTurn);
-    }
 
-  })
+  if (!checkHorizontal(board) && !checkVertical(board) && !checkDiagonal(board)) {
+    console.log(checkDiagonal(board), 'diagonal');
+    readline.question(`Player: Choose Your Position?`, (key) => {
+      if (key === 'j') {
+        readline.close();
+      } else if (key <= 9 || key >= 1) {
+        board = gameStart(key, piece, board);
+        turn(whoseTurn);
+      }
+    })
+  } else {
+    if (piece === 'O') {
+      console.log('Player X has won');
+    } else {
+      console.log('Player O has won.');
+    }
+    readline.close()
+  }
 }
 
 turn(true);
