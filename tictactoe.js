@@ -12,7 +12,7 @@ function checkHorizontal(board) {
   var flag = false;
   board.forEach(row => {
     var str = row.reduce((accum, item) => accum += item, '');
-    if ('XXXOOO'.indexOf(str) > -1) {
+    if (['XXX', 'OOO'].includes(str)) {
       flag = true;
     }
   })
@@ -23,9 +23,9 @@ function checkVertical(board) {
   for (var i = 0; i < board.length; i++) {
     var str = '';
     for (var j = 0; j < board.length; j++) {
-      str += board[j][i] || '';
+      str += board[j][i];
     }
-    if ('XXXOOO'.indexOf(str) > -1) {
+    if (['XXX', 'OOO'].includes(str)) {
       return true;
     }
   }
@@ -33,9 +33,14 @@ function checkVertical(board) {
 }
 
 function checkDiagonal(board) {
-  var isLeftDiag = 'XXXOOO'.indexOf(board[0][0] + board[1][1] + board[2][2] + '') > -1;
-  var isRightDiag = 'XXXOOO'.indexOf(board[2][0] + board[1][1] + board[0][2] + '') > -1;
-  return (isLeftDiag || isRightDiag) ? true : false;
+  var rightDiag = '' + board[2][0] + board[1][1] + board[0][2];
+  var leftDiag = '' + board[0][0] + board[1][1] + board[2][2];
+
+  var isLeftDiag = ['XXX', 'OOO'].includes(leftDiag);
+  var isRightDiag = ['XXX', 'OOO'].includes(rightDiag);
+
+
+  return (isLeftDiag || isRightDiag)
 }
 
 function gameStart(key = null, piece, board) {
@@ -65,13 +70,20 @@ function gameStart(key = null, piece, board) {
   })
   return board;
 }
+
+function showBoard(board) {
+  board.forEach((row) => {
+    console.log(row);
+  })
+}
+
 gameStart(null, piece = 'X', board);
 
 const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
 })
-const turn = (whoseTurn) => {
+const turn = (whoseTurn, prevKeys) => {
   whoseTurn = !whoseTurn;
 
   var piece = '';
@@ -82,13 +94,17 @@ const turn = (whoseTurn) => {
   }
 
   if (!checkHorizontal(board) && !checkVertical(board) && !checkDiagonal(board)) {
-    console.log(checkDiagonal(board), 'diagonal');
     readline.question(`Player: Choose Your Position?`, (key) => {
       if (key === 'j') {
         readline.close();
-      } else if (key <= 9 || key >= 1) {
+      } else if ((key <= 9 || key >= 1) && !(prevKeys.includes(key))) {
         board = gameStart(key, piece, board);
-        turn(whoseTurn);
+        prevKeys.push(key);
+        turn(whoseTurn, prevKeys);
+      } else {
+        showBoard(board);
+        console.log(`You have placed ${piece === 'O' ? 'X' : 'O'} in an occupied location`)
+        turn(!whoseTurn, prevKeys)
       }
     })
   } else {
@@ -101,4 +117,4 @@ const turn = (whoseTurn) => {
   }
 }
 
-turn(true);
+turn(true, []);
