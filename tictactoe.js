@@ -43,6 +43,19 @@ function checkDiagonal(board) {
   return (isLeftDiag || isRightDiag)
 }
 
+function checkNoMoreMove(board) {
+  return !!board.reduce((accum, row) => {
+    return !!accum && row.reduce((accum, item) => {
+      if (item === '_') {
+        util = false;
+      } else {
+        util = true
+      }
+      return accum && util
+    }, true)
+  }, true)
+}
+
 function gameStart(key = null, piece, board) {
   if (key === '1') {
     board[0][0] = piece;
@@ -95,15 +108,18 @@ const turn = (whoseTurn, prevKeys) => {
 
   if (!checkHorizontal(board) && !checkVertical(board) && !checkDiagonal(board)) {
     readline.question(`Player: Choose Your Position?`, (key) => {
+
       if (key === 'j') {
         readline.close();
       } else if ((key <= 9 || key >= 1) && !(prevKeys.includes(key))) {
         board = gameStart(key, piece, board);
         prevKeys.push(key);
+
         turn(whoseTurn, prevKeys);
       } else {
         showBoard(board);
-        console.log(`You have placed ${piece === 'O' ? 'X' : 'O'} in an occupied location`)
+        console.log(`You have placed ${piece} in an occupied location.
+        Please choose another location.`)
         turn(!whoseTurn, prevKeys)
       }
     })
